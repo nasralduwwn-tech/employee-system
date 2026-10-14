@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}سجل الحضور{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4><i class="bi bi-calendar-check"></i> سجل الحضور والانصراف</h4>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">رجوع</a>
+</div>
+
+<div class="card p-4 mb-4">
+    <form method="GET" class="row g-3 align-items-end">
+        <div class="col-auto">
+            <label class="form-label">اختر الشهر</label>
+            <input type="month" name="month" class="form-control" value="{{ month }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">عرض</button>
+        </div>
+    </form>
+</div>
+
+<div class="card p-4">
+    {% if records %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>الموظف</th>
+                    <th>الحضور</th>
+                    <th>الانصراف</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td>{{ r.work_date }}</td>
+                    <td>{{ r.full_name }}</td>
+                    <td>{{ r.check_in[11:16] if r.check_in else '-' }}</td>
+                    <td>{{ r.check_out[11:16] if r.check_out else '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">لا توجد سجلات لهذا الشهر</p>
+    {% endif %}
+</div>
+{% endblock %}

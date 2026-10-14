@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}لوحة الموظف{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4><i class="bi bi-person-badge"></i> مرحباً {{ current_user.full_name }}</h4>
+</div>
+
+<div class="row g-3 mb-4">
+    <!-- Attendance Card -->
+    <div class="col-md-6">
+        <div class="card p-4 h-100">
+            <h5 class="mb-3"><i class="bi bi-clock-history"></i> الحضور والانصراف اليوم</h5>
+            {% if attendance and attendance.check_in %}
+                <p class="mb-1"><strong>الحضور:</strong> {{ attendance.check_in[11:16] }}</p>
+                {% if attendance.check_out %}
+                    <p class="mb-3"><strong>الانصراف:</strong> {{ attendance.check_out[11:16] }}</p>
+                    <span class="badge bg-success">مكتمل</span>
+                {% else %}
+                    <p class="mb-3 text-muted">لم يتم تسجيل الانصراف بعد</p>
+                    <a href="{{ url_for('checkout') }}" class="btn btn-warning">
+                        <i class="bi bi-box-arrow-right"></i> تسجيل انصراف
+                    </a>
+                {% endif %}
+            {% else %}
+                <p class="text-muted mb-3">لم تسجل حضورك اليوم</p>
+                <a href="{{ url_for('checkin') }}" class="btn btn-success">
+                    <i class="bi bi-box-arrow-in-right"></i> تسجيل حضور
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats Card -->
+    <div class="col-md-6">
+        <div class="card p-4 h-100 stat-card">
+            <h5 class="mb-3"><i class="bi bi-cash-stack"></i> ملخص الشهر الحالي</h5>
+            <h2 class="text-primary">{{ "%.2f"|format(monthly_total) }} <small class="fs-6 text-muted">ريال</small></h2>
+            <p class="text-muted mb-0">إجمالي فواتيرك هذا الشهر</p>
+            <p class="mt-2 mb-0"><strong>نسبتك المتوقعة (50%):</strong> 
+                <span class="text-success fw-bold">{{ "%.2f"|format(monthly_total * 0.5) }} ريال</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0"><i class="bi bi-receipt"></i> إنشاء فاتورة جديدة</h5>
+        <a href="{{ url_for('create_invoice') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> فاتورة جديدة
+        </a>
+    </div>
+</div>
+
+<div class="card p-4">
+    <h5 class="mb-3"><i class="bi bi-list-ul"></i> آخر فواتيري</h5>
+    {% if invoices %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>رقم الفاتورة</th>
+                    <th>العميل</th>
+                    <th>المبلغ</th>
+                    <th>التاريخ</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inv in invoices %}
+                <tr>
+                    <td>{{ inv.invoice_number }}</td>
+                    <td>{{ inv.client_name }}</td>
+                    <td>{{ "%.2f"|format(inv.amount) }} ريال</td>
+                    <td>{{ inv.created_at[:16] }}</td>
+                    <td>
+                        <a href="{{ url_for('download_invoice', invoice_id=inv.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-download"></i> PDF
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">لا توجد فواتير بعد</p>
+    {% endif %}
+</div>
+{% endblock %}
